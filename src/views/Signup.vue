@@ -1,5 +1,10 @@
 <template>
   <div id="thisPage">
+    <div class="columns">
+      <div class="column full">
+        <img src="../assets/vue.jpg" alt="image" class="cover">
+      </div>
+      <div class="column full is-5">
     <div id="signup">
       <div class="field is-horizontal">
         <div class="field-label is-normal">
@@ -8,7 +13,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <input type="email" class="input" placeholder="Enter Your Username" v-model.trim="payload.userName">
+              <input type="email" class="input" placeholder="Choose Your Username" v-model.trim="payload.userName">
             </div>
           </div>
         </div>
@@ -20,7 +25,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <input type="password" class="input" placeholder="Enter Your Password" v-model.trim="payload.password">
+              <input type="password" class="input" placeholder="Choose Your Password" v-model.trim="payload.password">
             </div>
           </div>
         </div>
@@ -71,6 +76,8 @@
         </div>
       </div>
     </div>
+    </div>
+    </div>
   </div>
 </template>
 
@@ -91,23 +98,37 @@
       signup: async function () {
         try {
           for (const prop in this.payload) {
-            if (!this.payload[prop] || !this.checkPassword) return alert('fill all details');
-          }
-          if (this.checkPassword !== this.payload.password) return alert('check both the passwords');
+            if (!this.payload[prop] || !this.checkPassword) {
+              return this.$buefy.toast.open({
+                message: 'All fields are Mandatory',
+                type: 'is-danger',
+                position: 'is-bottom-right',
+              });
+            };
+          };
+          if (this.checkPassword !== this.payload.password) {
+            return this.$buefy.toast.open({
+              message: 'Both the passwords are not same',
+              type: 'is-danger',
+              position: 'is-bottom-right',
+            });
+          };
           for (const user of this.users) {
             if (user.userName === this.payload.userName) {
               return this.$buefy.toast.open({
                 duration: 3000,
                 message: 'User already exist, please Sign In',
-                type: 'is-danger'
+                type: 'is-danger',
+                position: 'is-bottom-right',
               });
             }
-          }
+          };
           await this.users.push(this.payload);
           this.$buefy.toast.open({
             duration: 3000,
             message: 'Signed Up Successfully',
-            type: 'is-success'
+            type: 'is-success',
+            position: 'is-bottom-right',
           });
           this.payload = {userName: '', password: ''};
           this.checkPassword = '';
@@ -115,7 +136,8 @@
         } catch (error) {
           this.$buefy.toast.open({
             message: 'Something went wrong',
-            type: 'is-danger'
+            type: 'is-danger',
+            position: 'is-bottom-right',
           });
           console.log(error);
         }
@@ -128,3 +150,16 @@
     },
   }
 </script>
+
+<style scoped>
+  .full {
+    height: 100vh;
+  }
+  #signup {
+    padding: 10px;
+  }
+  .cover {
+    object-fit: cover;
+    height: 100vh;
+  }
+</style>

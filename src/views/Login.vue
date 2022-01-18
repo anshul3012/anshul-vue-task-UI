@@ -1,5 +1,10 @@
 <template>
   <div id="thisPage">
+    <div class="columns">
+      <div class="column full">
+        <img src="../assets/vue.jpg" alt="image" class="cover">
+      </div>
+      <div class="column full is-5">
     <div id="login">
       <div class="field is-horizontal">
         <div class="field-label is-normal">
@@ -8,7 +13,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <input type="email" class="input" placeholder="Enter Your Username" v-model.trim="payload.userName">
+              <input type="text" class="input" placeholder="Enter Your Username" v-model.trim="payload.userName">
             </div>
           </div>
         </div>
@@ -50,6 +55,8 @@
         </div>
       </div>
     </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -69,7 +76,13 @@
       login: async function () {
         try {
           for (const prop in this.payload) {
-            if (!this.payload[prop]) return alert('fill all details')
+            if (!this.payload[prop]) {
+              return this.$buefy.toast.open({
+                message: 'All fields are Mandatory',
+                type: 'is-danger',
+                position: 'is-bottom-right',
+              });
+            }
           }
           if (this.users.length > 0) {
             for (const e of this.users) {
@@ -82,19 +95,22 @@
                 }
                 else return this.$buefy.toast.open({
                   message: 'Incorrect password',
-                  type: 'is-danger'
+                  type: 'is-danger',
+                  position: 'is-bottom-right',
                 });
               } else {
                 return this.$buefy.toast.open({
                   message: 'User does not exist, Please Sign Up first',
-                  type: 'is-danger'
+                  type: 'is-danger',
+                  position: 'is-bottom-right',
                 });
               }
             };
           } else {
             return this.$buefy.toast.open({
               message: 'User does not exist, Please Sign Up first',
-              type: 'is-danger'
+              type: 'is-danger',
+              position: 'is-bottom-right',
             });
           };
           this.payload = {userName: '', password: ''};
@@ -110,3 +126,16 @@
     }
   }
 </script>
+
+<style scoped>
+  .full {
+    height: 100vh;
+  }
+  #login {
+    padding: 10px;
+  }
+  .cover {
+    object-fit: cover;
+    height: 100vh;
+  }
+</style>
