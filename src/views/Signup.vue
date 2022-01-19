@@ -82,16 +82,28 @@
 </template>
 
 <script>
+  import axios from 'axios';
+  import environment from '../utils/environment';
   import users from '../database/users';
   export default {
     data () {
       return {
         users,
+        environment,
         payload: {
           userName: '',
           password: '',
         },
         checkPassword: '',
+      }
+    },
+    created: async function () {
+      try {
+        // const result = 1;
+        const { data: result } = await axios.get(`${this.environment}`);
+        console.log(result);
+      } catch (error) {
+        console.log(error);
       }
     },
     methods: {
