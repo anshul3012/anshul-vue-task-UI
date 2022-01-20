@@ -1,10 +1,10 @@
 <template>
   <div id="thisPage">
-    <div>
+    <div class="topbar">
       <button class="button" @click="home()">Home</button>
+      <button class="button is-danger is-pulled-right" @click="logout()">Logout</button>
     </div>
-    <br>
-    <div>
+    <div class="pad">
       <div class="columns">
         <div class="column">
           <div id="users">
@@ -95,6 +95,11 @@ export default {
     home: function () {
       this.$router.push('/');
     },
+    logout: function () {
+      sessionStorage.removeItem('userName');
+      sessionStorage.removeItem('tagMode');
+      this.$router.push('/login');
+    },
     deleteUser: async function (userName) {
       try {
         await console.log(userName);
@@ -107,8 +112,14 @@ export default {
 </script>
 
 <style scoped>
-  #thisPage {
-    padding: 0.2rem;
+  .topbar {
+    color: white;
+    background-color: #91b2c7;
+    padding: 0.2rem 11px 0.2rem;
+    height: 48px;
+  }
+  .pad {
+    padding: 11px;
   }
   table {
     border-collapse: collapse;

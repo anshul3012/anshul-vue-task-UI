@@ -4,36 +4,94 @@
       <button class="button is-warning is-pulled-left" @click.prevent="database()">Hello&nbsp;<u>{{ userName }}</u>&nbsp;!!</button>
       <button class="button is-danger is-pulled-right" @click="logout()">Logout</button>
     </div>
-    <div class="body">
-      <div class="content">
-        <div class="inputs">
-          <input class="input" type="text" placeholder="Enter your task" v-model.trim="task" @keyup.enter="addTask()">
+    <div class="body pad">
+      <div class="columns is-gapless">
+        <div class="column is-one-third">
+          <div id="progress" v-if="tasks.length > 0">
+            <p class="help">Percentage of Task Completed : {{ ((value * 100)/max).toFixed(2) }}%</p>
+            <progress class="progress is-success" :value="calculateValue()" :max="max"></progress>
+          </div>
         </div>
-        <div class="lists" v-if="tasks.length > 0">
-          <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+        <br>
+        <div class="column is-one-third"></div>
+        <div class="column is-one-third">
+          <div class="field is-grouped">
+            <p class="control is-expanded">
+              <input class="input" type="text" placeholder="Enter your task" v-model.trim="task" @keyup.enter="addTask()">
+            </p>
+            <p class="control">
+              <a class="button is-info" @click="addTask()">Add Task</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="content" v-if="tasks.length > 0">
+        <div id="toggle">
+          <div class="columns is-gapless">
+            <div class="column"></div>
+            <div class="column">
+              <div class="field is-grouped">
+                <p class="control is-expanded">
+                  <span class="help has-text-right"><span>Toggle to {{ tagMode ? 'Table' : 'Tag' }} Mode</span></span>
+                </p>
+                <p class="control">
+                  <b-switch v-model="tagMode" size="is-small"></b-switch>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="allTasks">
+          <div id="task-tag" class="field is-grouped is-grouped-multiline pad" v-if="tagMode">
+            <div class="control" v-for="(task, index) of tasks" :key="index">
+              <div class="tags has-addons are-medium">
+                <span class="tag" @click="toggleStatus(index)" :class="task.status ? 'is-danger' : 'is-success'">{{ task.description }}</span>
+                <a class="tag is-link" @click="editDescription(task.description, index)"><i class="far fa-edit"></i></a>
+                <a class="tag" @click="deleteTask(index)"><i class="far fa-trash-alt"></i></a>
+              </div>
+            </div>
+          </div>
+          <table id="task-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-else>
             <thead>
               <tr>
-                <th class="has-text-centered">Sr</th>
+                <th width="5%" class="has-text-centered">Sr</th>
                 <th class="has-text-centered">Task</th>
-                <th class="has-text-centered">Action</th>
+                <th width="12%" class="has-text-centered">Status</th>
+                <th width="10%" class="has-text-centered">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(task, index) of tasks" :key="index" :class="task.status ? '' : 'strikeout'">
-                <td class="has-text-centered" @click="toggleStatus(index)">{{ index + 1 }}</td>
-                <td class="has-text-centered" @click="toggleStatus(index)">{{ task.description }}</td>
+                <td class="has-text-centered">{{ index + 1 }}</td>
+                <td class="has-text-centered" @dblclick="editDescription(task.description, index)">{{ task.description }}</td>
                 <td class="has-text-centered">
-                  <span @click="deleteTask(index)" class="has-text-danger">
-                    <i class="far fa-trash-alt"></i>
+                  <b-tooltip :label="`Make status as ${task.status ? 'Completed' : 'Pending'}`" type="is-dark" position="is-left">
+                    <button id="statusButton" class="button is-small" :class="task.status ? 'is-danger' : 'is-success'" @click="toggleStatus(index)">
+                      {{ task.status ? 'Pending' : 'Completed' }}
+                    </button>
+                  </b-tooltip>
+                </td>
+                <td class="has-text-centered">
+                  <span class="has-text-info" @click="editDescription(task.description, index)">
+                    <span class="icon">
+                      <i class="fas fa-edit"></i>
+                    </span>
+                  </span>
+                  <span class="has-text-white">|</span>
+                  <span class="has-text-white">|</span>
+                  <span class="has-text-danger" @click="deleteTask(index)">
+                    <span class="icon">
+                      <i class="far fa-trash-alt"></i>
+                    </span>
                   </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="lists" v-else>
-          <p>No Lists</p>
-        </div>
+      </div>
+      <div v-else>
+        <h1>No Task</h1>
       </div>
     </div>
   </div>
@@ -48,10 +106,18 @@ export default {
       userName: sessionStorage.userName,
       task: '',
       tasks: [],
+      max: 0,
+      value: 0,
+      tagMode: false
     }
   },
   created: async function () {
     await this.getAllTasks();
+  },
+  watch: {
+    tasks: function () {
+      this.max = this.tasks.length;
+    }
   },
   methods: {
     logout: function () {
@@ -60,6 +126,14 @@ export default {
     },
     database: function () {
       this.$router.push('/database');
+    },
+    calculateValue: function () {
+      let value = 0;
+      this.tasks.forEach(e => {
+        if (!e.status) value++;
+      });
+      this.value = value;
+      return value;
     },
     getAllTasks: async function () {
       const loading = this.$buefy.loading.open();
@@ -107,10 +181,34 @@ export default {
       }
     },
     toggleStatus: async function (index) {
+      const loading = this.$buefy.loading.open();
       try {
         const { data } = await axios.post(`${environment}togglestatus`, { userName: this.userName, index });
         this.tasks[index].status = data;
+        loading.close();
       } catch (error) {
+        loading.close();
+        console.log(error);
+      }
+    },
+    editDescription: function (description, index) {
+      this.$buefy.dialog.prompt({
+        message: `Edit Description of the Task`,
+        inputAttrs: {
+          value: description
+        },
+        trapFocus: true,
+        onConfirm: (value) => this.updateDescription(value, index)
+      });
+    },
+    updateDescription: async function (description, index) {
+      const loading = this.$buefy.loading.open();
+      try {
+        const { data } = await axios.post(`${environment}updatedescription`, {userName: this.userName, index, description});
+        this.tasks[index].description = data;
+        loading.close();
+      } catch (error) {
+        loading.close();
         console.log(error);
       }
     },
@@ -132,23 +230,18 @@ export default {
 <style scoped>
   .topbar {
     color: white;
-    background-color: #41B883;
-    padding: 0.2rem;
+    background-color: #91b2c7;
+    padding: 0.2rem 11px 0.2rem;
     height: 48px;
   }
-  table {
-    border-collapse: collapse;
+  .pad {
+    padding: 11px;
   }
-  td {
-    position: relative;
-    padding: 5px 10px;
+  #allTasks {
+    border: solid 1px black;
   }
-  tr.strikeout td:before {
-    content: " ";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    border-bottom: 1px dotted red;
-    width: 100%;
+  #statusButton {
+    width: 75px;
+    height: 24px;
   }
 </style>

@@ -5,7 +5,7 @@
         <img src="../assets/vue.jpg" alt="image" class="cover">
       </div>
       <div class="column full is-5">
-        <div id="login">
+        <div class="box" id="login">
           <h1>LOGIN !!</h1>
           <div class="field">
             <p class="control has-icons-left">

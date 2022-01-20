@@ -5,7 +5,8 @@
         <img src="../assets/vue.jpg" alt="image" class="cover">
       </div>
       <div class="column full is-5">
-        <div id="signup">
+        <div class="box" id="signup">
+          <h1>SIGN UP !!</h1>
           <div class="field">
             <p class="control has-icons-left">
               <input type="email" class="input" placeholder="Choose Your Username" v-model.trim="payload.userName">
