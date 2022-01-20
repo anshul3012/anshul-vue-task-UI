@@ -5,40 +5,30 @@
         <img src="../assets/vue.jpg" alt="image" class="cover">
       </div>
       <div class="column full is-5">
-    <div id="signup">
-      <div class="field is-horizontal">
-        <div class="field-label is-normal">
-          <label class="label">User Name</label>
-        </div>
-        <div class="field-body">
+        <div id="signup">
           <div class="field">
-            <div class="control">
+            <p class="control has-icons-left">
               <input type="email" class="input" placeholder="Choose Your Username" v-model.trim="payload.userName">
-            </div>
+              <span class="icon is-small is-left">
+                <i class="fab fa-cc-amex"></i>
+              </span>
+            </p>
           </div>
-        </div>
-      </div>
-      <div class="field is-horizontal">
-        <div class="field-label is-normal">
-          <label class="label">Password</label>
-        </div>
-        <div class="field-body">
           <div class="field">
-            <div class="control">
+            <p class="control has-icons-left">
               <input type="password" class="input" placeholder="Choose Your Password" v-model.trim="payload.password">
-            </div>
+              <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+              </span>
+            </p>
           </div>
-        </div>
-      </div>
-      <div class="field is-horizontal">
-        <div class="field-label is-normal">
-          <label class="label">Confirm Password</label>
-        </div>
-        <div class="field-body">
           <div class="field">
-            <div class="control">
-              <input type="password" class="input" placeholder="Enter Your Password again" v-model.trim="checkPassword">
-            </div>
+            <p class="control has-icons-left">
+              <input type="password" class="input" placeholder="Confirm Your Password" v-model.trim="checkPassword">
+              <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+              </span>
+            </p>
             <p class="help is-success" v-if="checkPassword.length > 0 && checkPassword === payload.password">
               Password is matching
             </p>
@@ -49,34 +39,20 @@
               Enter your password again for Sign Up
             </p>
           </div>
-        </div>
-      </div>
-      <div class="field is-horizontal">
-        <div class="field-label is-normal"></div>
-        <div class="field-body">
-          <div class="field">
-            <div class="control">
-              <div class="level">
-                <div class="level-left">
-                  <div class="level-item">
-                    <input class="button is-info" type="submit" value="Sign Up" @click="signup()">
-                  </div>
-                </div>
-                <div class="level-right">
-                  <div class="level-item">
-                    <p>Already Signed Up ??</p>
-                  </div>
-                  <div class="level-item">
-                    <input class="button is-warning" type="submit" value="Sign In" @click="toLogin()">
-                  </div>
-                </div>
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <input class="button is-info" type="submit" value="Sign Up" @click="signup()">
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <input class="button is-warning" type="submit" value="Sign In" @click="toLogin()">
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   </div>
 </template>
@@ -84,12 +60,9 @@
 <script>
   import axios from 'axios';
   import environment from '../utils/environment';
-  import users from '../database/users';
   export default {
     data () {
       return {
-        users,
-        environment,
         payload: {
           userName: '',
           password: '',
@@ -99,8 +72,7 @@
     },
     created: async function () {
       try {
-        // const result = 1;
-        const { data: result } = await axios.get(`${this.environment}`);
+        const { data: result } = await axios.get(`${environment}signup`);
         console.log(result);
       } catch (error) {
         console.log(error);
@@ -125,26 +97,26 @@
               position: 'is-bottom-right',
             });
           };
-          for (const user of this.users) {
-            if (user.userName === this.payload.userName) {
-              return this.$buefy.toast.open({
-                duration: 3000,
-                message: 'User already exist, please Sign In',
-                type: 'is-danger',
-                position: 'is-bottom-right',
-              });
-            }
-          };
-          await this.users.push(this.payload);
-          this.$buefy.toast.open({
-            duration: 3000,
-            message: 'Signed Up Successfully',
-            type: 'is-success',
-            position: 'is-bottom-right',
-          });
-          this.payload = {userName: '', password: ''};
-          this.checkPassword = '';
-          this.toLogin();
+          const { data } = await axios.post(`${environment}signup`, this.payload);
+          if (data) {
+            this.payload = {userName: '', password: ''};
+            this.checkPassword = '';
+            this.toLogin();
+            return this.$buefy.toast.open({
+              duration: 3000,
+              message: 'Signed Up Successfully',
+              type: 'is-success',
+              position: 'is-bottom-right',
+            });
+          }
+          else {
+            return this.$buefy.toast.open({
+              duration: 3000,
+              message: 'User already exist, please Sign In',
+              type: 'is-danger',
+              position: 'is-bottom-right',
+            });
+          }
         } catch (error) {
           this.$buefy.toast.open({
             message: 'Something went wrong',

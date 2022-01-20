@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
-import homeGaurd from "./authgaurd";
+import authgaurd from "./authgaurd";
 
 Vue.use(VueRouter);
 
@@ -10,7 +10,13 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
-    beforeEnter: homeGaurd,
+    beforeEnter: authgaurd.homeGaurd,
+  },
+  {
+    path: "/database",
+    name: "Database",
+    component: () => import("../views/Database.vue"),
+    beforeEnter: authgaurd.anshul,
   },
   {
     path: "/login",

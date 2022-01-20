@@ -1,7 +1,12 @@
-const homeGaurd = async (to, from, next) => {
+const homeGaurd = (to, from, next) => {
   const userName = sessionStorage.userName;
   if (userName) next();
   else next({ path: 'login' });
 };
 
-export default homeGaurd;
+const anshul = (to, from, next) => {
+  if (sessionStorage.userName === 'dev') next();
+  // else next({ path: '/' });
+}
+
+export default { homeGaurd, anshul };
