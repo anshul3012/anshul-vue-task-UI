@@ -45,45 +45,53 @@
           <div id="task-tag" class="field is-grouped is-grouped-multiline pad" v-if="tagMode">
             <div class="control" v-for="(task, index) of tasks" :key="index">
               <div class="tags has-addons are-medium">
-                <span class="tag" @click="toggleStatus(index)" :class="task.status ? 'is-danger' : 'is-success'">{{ task.description }}</span>
-                <a class="tag is-link" @click="editDescription(task.description, index)"><i class="far fa-edit"></i></a>
-                <a class="tag" @click="deleteTask(index)"><i class="far fa-trash-alt"></i></a>
+                <b-tooltip label="status change" type="is-dark">
+                  <span class="tag" @click="toggleStatus(index)" :class="task.status ? 'is-warning' : 'is-success'">{{ task.description }}</span>
+                </b-tooltip>
+                <b-tooltip label="edit description" type="is-dark" position="is-left">
+                  <a class="tag is-info" @click="editDescription(task.description, index)"><i class="far fa-edit"></i></a>
+                </b-tooltip>
+                <b-tooltip label="delete" type="is-dark" position="is-left">
+                  <a class="tag is-danger" @click="deleteTask(index)"><i class="far fa-trash-alt"></i></a>
+                </b-tooltip>
               </div>
             </div>
           </div>
           <table id="task-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-else>
             <thead>
               <tr>
-                <th width="5%" class="has-text-centered">Sr</th>
+                <th width="3%" class="has-text-centered">Sr</th>
                 <th class="has-text-centered">Task</th>
-                <th width="12%" class="has-text-centered">Status</th>
-                <th width="10%" class="has-text-centered">Actions</th>
+                <th width="8%" class="has-text-centered">Status</th>
+                <th width="8%" class="has-text-centered">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(task, index) of tasks" :key="index" :class="task.status ? '' : 'strikeout'">
                 <td class="has-text-centered">{{ index + 1 }}</td>
-                <td class="has-text-centered" @dblclick="editDescription(task.description, index)">{{ task.description }}</td>
+                <td class="has-text-centered outOfScreen" @dblclick="editDescription(task.description, index)">{{ task.description }}</td>
                 <td class="has-text-centered">
                   <b-tooltip :label="`Make status as ${task.status ? 'Completed' : 'Pending'}`" type="is-dark" position="is-left">
-                    <button id="statusButton" class="button is-small" :class="task.status ? 'is-danger' : 'is-success'" @click="toggleStatus(index)">
+                    <button id="statusButton" class="button is-small" :class="task.status ? 'is-warning' : 'is-success'" @click="toggleStatus(index)">
                       {{ task.status ? 'Pending' : 'Completed' }}
                     </button>
                   </b-tooltip>
                 </td>
                 <td class="has-text-centered">
-                  <span class="has-text-info" @click="editDescription(task.description, index)">
-                    <span class="icon">
-                      <i class="fas fa-edit"></i>
+                  <b-tooltip label="edit description" type="is-dark" position="is-left">
+                    <span class="has-text-info" @click="editDescription(task.description, index)">
+                      <span class="icon">
+                        <i class="fas fa-edit"></i>
+                      </span>
                     </span>
-                  </span>
-                  <span class="has-text-white">|</span>
-                  <span class="has-text-white">|</span>
-                  <span class="has-text-danger" @click="deleteTask(index)">
-                    <span class="icon">
-                      <i class="far fa-trash-alt"></i>
+                  </b-tooltip>
+                  <b-tooltip label="delete" type="is-dark" position="is-left">
+                    <span class="has-text-danger" @click="deleteTask(index)">
+                      <span class="icon">
+                        <i class="far fa-trash-alt"></i>
+                      </span>
                     </span>
-                  </span>
+                  </b-tooltip>
                 </td>
               </tr>
             </tbody>
@@ -91,7 +99,32 @@
         </div>
       </div>
       <div v-else>
-        <h1>No Task</h1>
+        <table>
+          <tr>
+            <td class="pl-4"><i class="fas fa-plus"></i></td>
+            <td class="pl-3">Add task through input field</td>
+          </tr>
+          <tr>
+            <td class="pl-4"><i class="fas fa-mouse-pointer"></i></td>
+            <td class="pl-3">Click on status button to toggle status of task between completed & pending</td>
+          </tr>
+          <tr>
+            <td class="pl-4"><i class="far fa-hand-pointer"></i></td>
+            <td class="pl-3">Double tap or click on edit button to update description</td>
+          </tr>
+          <tr>
+            <td class="pl-4"><i class="far fa-trash-alt"></i></td>
+            <td class="pl-3">Click on delete button to delete task</td>
+          </tr>
+          <tr>
+            <td class="pl-4"><i class="fas fa-toggle-on"></i></td>
+            <td class="pl-3">Toggle view through switch button</td>
+          </tr>
+          <tr>
+            <td class="pl-4"><i class="far fa-surprise"></i></td>
+            <td class="pl-3">Haven't added any task yet ?</td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
@@ -213,15 +246,23 @@ export default {
       }
     },
     deleteTask: async function (index) {
-      const loading = this.$buefy.loading.open();
-      try {
-        const { data } = await axios.post(`${environment}deletetask`, {userName: this.userName, index});
-        if (data) this.tasks.splice(index, 1);
-        loading.close();
-      } catch (error) {
-        loading.close();
-        console.log(error);
-      }
+      this.$buefy.dialog.confirm({
+        message: '<strong>Are you sure to delete?</strong>',
+        confirmText: 'Yes',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: async () => {
+          const loading = this.$buefy.loading.open();
+          try {
+            const { data } = await axios.post(`${environment}deletetask`, {userName: this.userName, index});
+            if (data) this.tasks.splice(index, 1);
+            loading.close();
+          } catch (error) {
+            loading.close();
+            console.log(error);
+          }
+        }
+      })
     }
   }
 }

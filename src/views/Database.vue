@@ -37,7 +37,7 @@
               <thead>
                 <h1>All Tasks</h1>
                 <tr>
-                  <th class="has-text-centered has-text-white has-background-black">Sr No#</th>
+                  <th class="has-text-centered has-text-white has-background-black">Sr</th>
                   <th class="has-text-centered has-text-white has-background-black">User Name</th>
                   <th class="has-text-centered has-text-white has-background-black">Task</th>
                   <!-- <th class="has-text-centered has-text-white has-background-black">Delete</th> -->
