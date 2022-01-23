@@ -17,7 +17,7 @@
         <div class="column is-one-third">
           <div class="field is-grouped">
             <p class="control is-expanded">
-              <input class="input" type="text" placeholder="Enter your task" v-model.trim="task" @keyup.enter="addTask()">
+              <input class="input is-info" type="text" placeholder="Enter your task" v-model.trim="task" @keyup.enter="addTask()">
             </p>
             <p class="control">
               <a class="button is-info" @click="addTask()">Add Task</a>
@@ -60,7 +60,7 @@
           <table id="task-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-else>
             <thead>
               <tr>
-                <th width="3%" class="has-text-centered">Sr</th>
+                <!-- <th width="3%" class="has-text-centered">Sr</th> -->
                 <th class="has-text-centered">Task</th>
                 <th width="8%" class="has-text-centered">Status</th>
                 <th width="8%" class="has-text-centered">Actions</th>
@@ -68,7 +68,7 @@
             </thead>
             <tbody>
               <tr v-for="(task, index) of tasks" :key="index" :class="task.status ? '' : 'strikeout'">
-                <td class="has-text-centered">{{ index + 1 }}</td>
+                <!-- <td class="has-text-centered">{{ index + 1 }}</td> -->
                 <td class="has-text-centered outOfScreen" @dblclick="editDescription(task.description, index)">{{ task.description }}</td>
                 <td class="has-text-centered">
                   <b-tooltip :label="`Make status as ${task.status ? 'Completed' : 'Pending'}`" type="is-dark" position="is-left">
